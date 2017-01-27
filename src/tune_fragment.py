@@ -39,6 +39,10 @@ class TuneFragment(object):
     def _create_abcfile(self):
         with open(self._abc_file, 'w') as f:
             f.write('X:1\n')
+            f.write('M:{}\n'.format(self.data['meter']))
+            f.write('L:1/8\n'.format())
+            if 'type' in self.data:
+                f.write('T:{}\n'.format(self.data['type']))
             f.write('K:{}\n'.format(self.data['mode']))
             f.write(self.data['abc'])
 
@@ -49,7 +53,7 @@ class TuneFragment(object):
         Takes a .abc with at least an X: and a K: and a minimum fragment of
         one bar if necessary padded with z's that will still play
         '''
-        subprocess.call(['abc2midi', self._abc_file, '-o', self._midi_file])
+        subprocess.call(['abc2midi', self._abc_file, '-BF','-o', self._midi_file])
 
 
 

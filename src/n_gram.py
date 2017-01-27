@@ -1,20 +1,35 @@
-
 from collections import Counter, defaultdict
 import pandas as pd
+import numpy as np
+from math import log
+
 
 
 class NGramModel(object):
     """
-    Takes a series from a DataFrame and an n and calculate the frequencies of an n sized chunk.
+    Takes a series from a DataFrame and an n and trains a model of a given n.
+
+    Parameters
+    ----------
+    n : int
+        Size of the window to look at my data.
+
+    Attributes
+    ----------
+    n_grams_count : defaultdict of Counter()
+        Counts the occurance of the last character in a window to the preceding ones.
+    frequencies : defaultdict of defaultdicts.
+        Holds the frequency a given last character shows up after the preceding ones given that all chararters show up.
+    perplexity : float
+        Holds the overall perplexity of my model given a new piece of data.
+
     """
     def __init__(self, n):
-        self.string = None
         self.n = n
         # dictionary of counters that take a prefix and count all occuranced of what comes after.
         self.n_grams_count = None
         # defaultdict of defaultdict that holds the frequencies of a given suffix.
         self.frequencies = None
-        self.perplexity = None
 
 
     def fit(self, series):
@@ -52,8 +67,6 @@ class NGramModel(object):
 
     # Calculates the frequency of a given n-gram.
     def _get_frequency(self):
-
-
         n_total = 0
         #for n size 1 its simpler and faster.
         if self.n == 1:
@@ -77,13 +90,17 @@ class NGramModel(object):
 
 #Doesn't work yet.
 #Returns the perplexity of a given model.
-    def perplexity(self, new_tune):
-        sum_of_probs = 0
-        working_tune = _pad_string(new_tune)
+    def perplexity_score(self, new_tune):
+        #import pdb; pdb.set_trace()
+        sum_of_log_probs = 0
+        working_tune = self._pad_string(new_tune)
         for i in xrange(len(working_tune) - self.n):
-            window = working_tune[i:i + self.n]
-            given = working_tune[:self.n - 1]
-            following = working_tune[-1]
-            sum_of_probs += log(self.frequencies[given][following].values())
 
-        return = sum_of_probs -1
+            window = working_tune[i:i + self.n]
+            given = window[:self.n - 1]
+            following = window[-1]
+            probability = self.frequencies[given][following]
+            sum_of_log_probs += log(probability + 1e-10)
+
+        perplexity = 1 - sum_of_log_probs
+        return perplexity

@@ -38,7 +38,7 @@ class NGramModel(object):
             self.n_grams_count = Counter()
             for tune in series.values:
                 self.n_grams_count += Counter(tune)
-            self._get_frequency()
+            self._create_frequency()
 
         # for more than 1
         if self.n > 1:
@@ -56,24 +56,27 @@ class NGramModel(object):
                     following = window[-1]
                     self.n_grams_count[given][following] += 1
 
-            self._get_frequency()
+            self._create_frequency()
 
 
     def _pad_string(self, string):
-        #pad with n-1
-        pad = '?' * (self.n - 1)
-        string = pad + string + pad
-        return string
+        if self.n == 1:
+            return string
+        else:
+            #pad with n-1
+            pad = '?' * (self.n - 1)
+            string = pad + string + pad
+            return string
 
     # Calculates the frequency of a given n-gram.
-    def _get_frequency(self):
+    def _create_frequency(self):
         n_total = 0
         #for n size 1 its simpler and faster.
         if self.n == 1:
             self.frequencies = defaultdict(lambda: 0.0)
             total = float(sum(self.n_grams_count.values()))
             #predict method.
-            frequencies = {k: v/total for k, v in self.characters.iteritems()}
+            frequencies = {k: v/total for k, v in self.n_grams_count.iteritems()}
             self.frequencies.update(frequencies)
 
         if self.n >1:
@@ -95,11 +98,10 @@ class NGramModel(object):
         sum_of_log_probs = 0
         working_tune = self._pad_string(new_tune)
         for i in xrange(len(working_tune) - self.n):
-
             window = working_tune[i:i + self.n]
-            given = window[:self.n - 1]
-            following = window[-1]
-            probability = self.frequencies[given][following]
+            history = window[:self.n - 1]
+            token = window[-1]
+            probability = self.frequencies[history][token]
             sum_of_log_probs += log(probability + 1e-10)
 
         perplexity = 1 - sum_of_log_probs

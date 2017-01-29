@@ -80,4 +80,6 @@ def abc_to_dict(abc_file):
     return tune
 
 def construct_tune_list(files):
+    if len(files) == 0:
+        raise RuntimeError("Filelist is empty.")
     return [abc_to_dict(f) for f in files]

@@ -26,7 +26,8 @@ def read_data(filepath):
     data.drop(drop_rows, inplace=True)
     data.reset_index(drop=True)
 
-    print len(data)
+
+    print "There are {} cells of data ".format(len(data))
     return data
 
 

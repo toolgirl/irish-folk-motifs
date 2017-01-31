@@ -31,6 +31,12 @@ class NGramModel(object):
         # defaultdict of defaultdict that holds the frequencies of a given suffix.
         self.frequencies = None
 
+    #Start reading at the token and get the history of it.
+    def get_window_properties(self, tune, i):
+        window = tune[i - self.n + 1:i + 1]
+        history = window[:-1]
+        token = window[-1]
+        return history, token
 
     def fit(self, series):
         # For one character at a time.
@@ -49,16 +55,13 @@ class NGramModel(object):
             # Go through each tune.
             for tune in series.values:
                 tune = self._pad_string(tune)
-
-                for i in xrange(len(tune) - self.n + 1):
-                    window = tune[i:i + self.n]
-                    given = window[:self.n-1]
-                    following = window[-1]
-                    self.n_grams_count[given][following] += 1
+                for i in xrange(self.n - 1, len(tune)):
+                    history, token = self.get_window_properties(tune, i)
+                    self.n_grams_count[history][token] += 1
 
             self._create_frequency()
 
-
+    # This is to make sure the string has the right amount of history.
     def _pad_string(self, string):
         if self.n == 1:
             return string
@@ -86,23 +89,19 @@ class NGramModel(object):
             total_n = 0
             self.frequencies = defaultdict(lambda: defaultdict(lambda: 0.0))
             for given, counter in self.n_grams_count.iteritems():
-                frequencies = {}
                 total_n = float(sum(counter.values()))
-                frequencies[given] = {k: v/total_n for k, v in counter.iteritems()}
-                self.frequencies.update(frequencies)
+                self.frequencies[given] = defaultdict(lambda: 0.0, {k: v/total_n for k, v in counter.iteritems()})
 
-#Doesn't work yet.
-#Returns the perplexity of a given model.
+
+#Returns the sum_of_log_probs and perplexity of a given model.
     def perplexity_score(self, new_tune):
-        #import pdb; pdb.set_trace()
         sum_of_log_probs = 0
         working_tune = self._pad_string(new_tune)
-        for i in xrange(len(working_tune) - self.n):
-            window = working_tune[i:i + self.n]
-            history = window[:self.n - 1]
-            token = window[-1]
+        for i in xrange(self.n - 1, len(working_tune)):
+            history, token = self.get_window_properties(working_tune, i)
             probability = self.frequencies[history][token]
             sum_of_log_probs += log(probability + 1e-10)
 
         perplexity = 1 - sum_of_log_probs
-        return perplexity
+
+        return perplexity, sum_of_log_probs

@@ -1,6 +1,8 @@
 from n_gram import NGramModel
 import numpy as np
-from itertools import product
+import itertools
+from collections import defaultdict
+from math import log
 
 
 
@@ -15,6 +17,10 @@ class EnsembleModel(NGramModel):
     corpus : pandas series, string
         both both training and test data.
 
+    Atributes
+    ---------
+
+
 
     """
     def __init__(self, n=3):
@@ -22,7 +28,13 @@ class EnsembleModel(NGramModel):
         self.models = []
         self.grid_weights = []
         self._create_models()
+        self.cumulative_score = None
+        self.weighted_frequencies = None
+        self.series = None
         self.frequencies = None
+        self.weights = None
+
+
 
     # Train the sub models.
     def fit_sub_models(self, series):
@@ -38,9 +50,10 @@ class EnsembleModel(NGramModel):
             self.models.append(NGramModel(i))
 
 
-    def grid_weights(self, string):
+    def construct_grid_weights(self):
         #Create the list of possible weights to use for grid searching.
-        for element in itertools.product(np.linspace(0, 1, 11), repeat=self.n - 1):
+        list_of_weights = np.linspace(0, 1, 6)
+        for element in itertools.product(list_of_weights, repeat=self.n - 1):
             if sum(element) <= 1:
                 last = 1 - sum(element)
                 x = list(element)
@@ -48,19 +61,35 @@ class EnsembleModel(NGramModel):
                 self.grid_weights.append(tuple(x))
 
 
-    def calculate_weighted_frequencies(self, list_of_weights):
-        # Given a set of weights finds the weighted frequencies of any letter
-        # with an n-1 sized history.
-        self.frequencies = defaultdict(lambda: defaultdict(lambda: 0.0))
+
+
+    def sum_of_log_probabilities(self, new_tune, list_of_weights):
+        sum_of_log_probs = 0
         largest_model = self.models[-1]
-        import pdb; pdb.set_trace()
-        for history, token_freq in largest_model.frequencies.iteritems():
-            for token in token_freq:
-                weighted_sum = 0
-                for weight, model in zip(list_of_weights, self.models):
-                    if model.n == 1:
-                        weighted_sum += model.frequencies[token] * weight
-                    else:
-                        window = history[- model.n + 1:]
-                        weighted_sum += model.frequencies[window][token] * weight
-                self.frequencies[history][token] = weighted_sum
+        working_tune = largest_model._pad_string(new_tune)
+        for i in xrange(largest_model.n - 1, len(working_tune)):
+            weighted_frequency = 0
+            for weight, model in zip(list_of_weights, self.models):
+                history, token = model.get_window_properties(working_tune, i)
+                if model.n == 1:
+                    weighted_frequency += model.frequencies[token] * weight
+                else:
+                    weighted_frequency += model.frequencies[history][token] * weight
+            sum_of_log_probs += log(weighted_frequency + 1e-10)
+        return sum_of_log_probs
+
+
+    def grid_search(self, series):
+        #This needs to take the different weights and different sized
+        # n_grams and give back the best combination.
+        # What is the perplexity now?
+        self.cumulative_score = defaultdict(lambda: 0.0)
+        # Get the weights of a given trained model.
+        for weights in self.grid_weights:
+            for tune in series:
+                sums = self.sum_of_log_probabilities(tune, weights)
+                self.cumulative_score[weights] += sums
+
+    def find_key_of_max_value(self):
+        key = max(self.cumulative_score, key=self.cumulative_score.get)
+        self.weights = key

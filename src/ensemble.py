@@ -60,9 +60,6 @@ class EnsembleModel(NGramModel):
                 x.append(last)
                 self.grid_weights.append(tuple(x))
 
-
-
-
     def sum_of_log_probabilities(self, new_tune, list_of_weights):
         sum_of_log_probs = 0
         largest_model = self.models[-1]
@@ -89,7 +86,10 @@ class EnsembleModel(NGramModel):
             for tune in series:
                 sums = self.sum_of_log_probabilities(tune, weights)
                 self.cumulative_score[weights] += sums
+            print '------------'
+        self.find_best_weights()
 
-    def find_key_of_max_value(self):
+
+    def find_best_weights(self):
         key = max(self.cumulative_score, key=self.cumulative_score.get)
         self.weights = key

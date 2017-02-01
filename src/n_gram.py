@@ -30,6 +30,7 @@ class NGramModel(object):
         self.n_grams_count = None
         # defaultdict of defaultdict that holds the frequencies of a given suffix.
         self.frequencies = None
+        self.score = None
 
     #Start reading at the token and get the history of it.
     def get_window_properties(self, tune, i):
@@ -103,5 +104,6 @@ class NGramModel(object):
             sum_of_log_probs += log(probability + 1e-10)
 
         perplexity = 1 - sum_of_log_probs
+        self.score = sum_of_log_probs
 
         return perplexity, sum_of_log_probs

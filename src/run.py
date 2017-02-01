@@ -27,6 +27,15 @@ data = read_data(os.path.join(scriptdirectory, '../data/TheSession-data/json/tun
 reel_data = data[data['type'] == 'reel']
 print len(reel_data)
 
+# jig_data = data[data['type'] == 'jig']
+
+with open('../data/harry_potter_7.txt', 'r') as f:
+    words = f.read()
+
+
+train_words = words[:594890]
+test_words = words[-594890:]
+
 # scriptdirectory = os.path.dirname(os.path.realpath(__file__))
 # tunes1001 = construct_tune_list(glob.glob(os.path.join(scriptdirectory, '../data/oneills/1001/T/*.abc')))
 # data = pd.DataFrame(tunes1001)
@@ -52,14 +61,14 @@ print "There are {} empty cells.".format(reel_train['abc'].isnull().sum())
 
 def make_ensembles():
     ensemble_output = {}
-    for i in range(1, 3):
+    for i in range(1, 5):
         start_time = time.time()
         em = EnsembleModel(n=i)
-        em.fit_sub_models(reel_train['abc'])
+        em.fit_sub_models(train_words)
         em.construct_grid_weights()
         print("--- %s seconds ---" % (time.time() - start_time))
         print "I'm grid searching"
-        em.grid_search(reel_verification['abc'])
+        em.grid_search(test_words)
         ensemble_output[em.weights] = em.cumulative_score[em.weights]
         print("--- %s seconds ---" % (time.time() - start_time))
         # with open('model_'+str(i)+'.pkl', 'w') as f:
@@ -74,8 +83,8 @@ df.columns = ['weights', 'score']
 ns = [len(X) for X in results.keys() ]
 df['n']=ns
 df.sort('n',ascending=True,inplace=True)
-df.to_csv('results.csv', index=False)
-plt.scatter(df.n.values.tolist(),df.score.values.tolist() )
+df.to_csv('results.csv')
+# plt.scatter(df.n.values.tolist(),df.score.values.tolist() )
 
 
 

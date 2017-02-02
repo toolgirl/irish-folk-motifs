@@ -63,7 +63,7 @@ class EnsembleModel(NGramModel):
     def sum_of_log_probabilities(self, new_tune, list_of_weights):
         sum_of_log_probs = 0
         largest_model = self.models[-1]
-        working_tune = largest_model._pad_string(new_tune)
+        working_tune = largest_model._pad_string_remove_whitespace(new_tune)
         for i in xrange(largest_model.n - 1, len(working_tune)):
             weighted_frequency = 0
             for weight, model in zip(list_of_weights, self.models):

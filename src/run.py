@@ -87,8 +87,8 @@ def make_ensembles(train, test, n_grams):
 
 # results = make_ensembles(train[0], test[0], )
 
- results = make_ensembles(reel_data['abc'], reel_verification['abc'], 4)
-# results = make_ensembles(small_r_train['abc'], small_r_test['abc'], 15)
+# results = make_ensembles(reel_data['abc'], reel_verification['abc'], 4)
+results = make_ensembles(small_r_train['abc'], small_r_test['abc'], 5)
 # results = make_ensembles(train_words, test_words, 6)
 df = pd.DataFrame.from_dict(results.items())
 df.columns = ['weights', 'score']

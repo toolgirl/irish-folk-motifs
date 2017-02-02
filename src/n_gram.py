@@ -63,21 +63,22 @@ class NGramModel(object):
             self._create_frequency()
 
     # This is to make sure the string has the right amount of history.
-    def _pad_string(self, string):
+    def _pad_string_remove_whitespace(self, string):
         if self.n == 1:
-            return string
+
+            return string.replace(" ", "")
         else:
             #pad with n-1
             pad = '?' * (self.n - 1)
             string = pad + string + pad
-            return string
+            return string.replace(" ", "")
 
     # Calculates the frequency of a given n-gram.
     def _create_frequency(self):
         n_total = 0
         #for n size 1 its simpler and faster.
         if self.n == 1:
-            self.frequencies = defaultdict(lambda: 0.0)
+            self.frequencies = defaultdict(float)
             total = float(sum(self.n_grams_count.values()))
             #predict method.
             frequencies = {k: v/total for k, v in self.n_grams_count.iteritems()}
@@ -88,10 +89,10 @@ class NGramModel(object):
             # occurance of a letter after an n-gram and returns the
             # frequency of that. Update self.frequencies
             total_n = 0
-            self.frequencies = defaultdict(lambda: defaultdict(lambda: 0.0))
+            self.frequencies = defaultdict(lambda: defaultdict(float))
             for given, counter in self.n_grams_count.iteritems():
                 total_n = float(sum(counter.values()))
-                self.frequencies[given] = defaultdict(lambda: 0.0, {k: v/total_n for k, v in counter.iteritems()})
+                self.frequencies[given] = defaultdict(float, {k: v/total_n for k, v in counter.iteritems()})
 
 
 #Returns the sum_of_log_probs and perplexity of a given model.

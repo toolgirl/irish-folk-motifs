@@ -25,13 +25,12 @@ class EnsembleModel(NGramModel):
     """
     def __init__(self, n=3):
         self.n = n
-        self.models = []
+        self.models = None
         self.grid_weights = []
         self._create_models()
         self.cumulative_score = None
         self.weighted_frequencies = None
         self.series = None
-        self.frequencies = None
         self.weights = None
 
 
@@ -45,6 +44,7 @@ class EnsembleModel(NGramModel):
 
     #Creates the required number of models specified by n.
     def _create_models(self):
+        self.models = []
         for i in range(1, self.n+1):
             #how to deal with the fit method? call after? call now?
             self.models.append(NGramModel(i))
@@ -80,7 +80,7 @@ class EnsembleModel(NGramModel):
         #This needs to take the different weights and different sized
         # n_grams and give back the best combination.
         # What is the perplexity now?
-        self.cumulative_score = defaultdict(lambda: 0.0)
+        self.cumulative_score = defaultdict(float)
         # Get the weights of a given trained model.
         for weights in self.grid_weights:
             for tune in series:

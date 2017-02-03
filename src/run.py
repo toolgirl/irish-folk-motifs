@@ -22,7 +22,6 @@ import matplotlib.pyplot as plt
 
 scriptdirectory = os.path.dirname(os.path.realpath(__file__))
 data = read_data(os.path.join(scriptdirectory, '../data/TheSession-data/json/tunes.json'))
-
 #get just the reels
 reel_data = data[data['type'] == 'reel']
 
@@ -38,7 +37,7 @@ g_tunes = data[data['mode'] == 'Gmajor']
 # data = pd.DataFrame(tunes1850)
 
 # Setting up the shuffle.
-np.random.seed(seed=6)
+# np.random.seed(seed=6)
 shuffled = reel_data.reindex(np.random.permutation(reel_data.index))
 
 #REELS
@@ -70,28 +69,27 @@ g_test = g_shuffled[-1883:]
 
 
 
-#PLAY FRAGMENTS
+# PLAY FRAGMENTS
 # tunefr = TuneFragment({'mode': 'G', 'meter': '6/8', 'abc': '|:GE|D2B BAG|BdB A2B|GED G2A|B2B AGE|\rD2B BAG|BdB A2B|GED G2A|BGE G:|\rBd|e2e edB|ege edB|d2B def|gfe dBA|\rG2A B2d|ege d2B|AGE G2A|BGE G:|'})
 # tunefr.play()
 
 
-weights = 	(0.0, 0.20000000000000001, 0.20000000000000001, 0.59999999999999998)
+weights = (0.0, 0.20000000000000001, 0.20000000000000001, 0.20000000000000001, 0.20000000000000001, 0.19999999999999996)
 start_time = time.time()
-em = EnsembleModel(n=4, weights=weights)
-em.fit_sub_models(g_train['abc'])
+em = EnsembleModel(n=6, weights=weights)
+em.fit_sub_models(g_tunes['abc'])
 # em.construct_grid_weights()
 # print("--- %s seconds ---" % (time.time() - start_time))
 # print "I'm grid searching"
 # em.grid_search(test[0])
 # print("--- %s seconds ---" % (time.time() - start_time))
 tune = em.generate()
+em.write_to_json()
+
 tunefr = TuneFragment({'mode': 'G', 'meter': '6/8', 'abc': tune})
 tunefr.play()
 
 
-
-#
-#
 # def make_ensembles(train, test, n_grams):
 #     "There are {} rows of train data".format(len(train))
 #     "There are {} rows of test data".format(len(test))

@@ -3,7 +3,7 @@ import numpy as np
 import itertools
 from collections import defaultdict
 from math import log
-
+import json
 
 
 class EnsembleModel(NGramModel):
@@ -21,7 +21,6 @@ class EnsembleModel(NGramModel):
     ---------
 
 
-
     """
     def __init__(self, n=3, weights=None):
         self.n = n
@@ -30,9 +29,9 @@ class EnsembleModel(NGramModel):
         self._create_models()
         self.cumulative_score = None
         self.weighted_frequencies = None
+        if weights is not None:
+            assert len(self.weights) == len(self.models)
         self.weights = weights
-
-
 
     # Train the sub models.
     def fit_sub_models(self, series):
@@ -40,17 +39,14 @@ class EnsembleModel(NGramModel):
             print "Training model {}".format(i)
             model.fit(series)
 
-
-    #Creates the required number of models specified by n.
+    # Creates the required number of models specified by n.
     def _create_models(self):
         self.models = []
         for i in range(1, self.n+1):
-            #how to deal with the fit method? call after? call now?
             self.models.append(NGramModel(i))
 
-
     def construct_grid_weights(self):
-        #Create the list of possible weights to use for grid searching.
+        # Create the list of possible weights to use for grid searching.
         list_of_weights = np.linspace(0, 1, 6)
         for element in itertools.product(list_of_weights, repeat=self.n - 1):
             if sum(element) <= 1:
@@ -60,6 +56,8 @@ class EnsembleModel(NGramModel):
                 self.grid_weights.append(tuple(x))
 
     def sum_of_log_probabilities(self, new_tune, list_of_weights):
+        # cumulative sum of the probabilities of a given token given its
+        # history.
         sum_of_log_probs = 0
         largest_model = self.models[-1]
         working_tune = largest_model._pad_string(new_tune)
@@ -75,7 +73,6 @@ class EnsembleModel(NGramModel):
             sum_of_log_probs += log(weighted_frequency + 1e-10)
         return sum_of_log_probs
 
-
     def grid_search(self, series):
         #This needs to take the different weights and different sized
         # n_grams and give back the best combination.
@@ -89,25 +86,22 @@ class EnsembleModel(NGramModel):
             print '------------'
         self.find_best_weights()
 
-
     def find_best_weights(self):
         key = max(self.cumulative_score, key=self.cumulative_score.get)
         self.weights = key
 
-
     def generate(self):
-        #Create a tune by choosing a model based on weights and then a
+        # Create a tune by choosing a model based on weights and then a
         # note based on probability.
         max_length = 400
         tune = self.models[-1].n * "?"
         for i in range(self.n - 1, max_length):
-            print len(self.models), len(self.weights)
             model = np.random.choice(self.models, 1, p=self.weights)[0]
             history, ignore = model.get_window_properties(tune, i)
             choose = model.frequencies[history]
             if model.n == 1 or len(choose) == 0:
-                unigram_freq = self.models[0].frequencies
-                token = np.random.choice(unigram_freq.keys(), 1, p=unigram_freq.values())[0]
+                unigram = self.models[0].frequencies
+                token = np.random.choice(unigram.keys(), 1, p=unigram.values())[0]
             else:
                 token = np.random.choice(choose.keys(), 1, p=choose.values())[0]
             tune += token
@@ -117,11 +111,11 @@ class EnsembleModel(NGramModel):
         tune = tune.replace(" ", "")
         return tune
 
-        def insertChar(mystring, position, chartoinsert ):
-            longi = len(mystring)
-            mystring   =  mystring[:position] + chartoinsert + mystring[position:]
-            return mystring
-    # def write_to_json(self):
-    #     with open('model.json', 'w') as fp:
-    #         json.dump(self.models.frequencies, fp)
-    #
+    def write_to_json(self):
+        # This collects the ensemble models weights and the submodels
+        # frequencies.
+        info = {}
+        info['weights'] = self.weights
+        info['model_frequencies'] = [model.frequencies for model in self.models]
+        with open('models.json', 'w') as fp:
+            json.dump(info, fp, indent=4)

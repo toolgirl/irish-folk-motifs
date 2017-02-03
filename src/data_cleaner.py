@@ -5,19 +5,21 @@ import glob
 '''
 Reads in the data from all the different sources and puts them all in a pandas df. Drops the apropriate columns and cleans out any rows that have empty 'abc', 'meter', 'or type'
 '''
-def read_data(filepath):
-    data = pd.read_json(filepath)
 
-    #Read in oneill's 1001 tunes.
+def read_data(filepath):
+    data = pd.read_json(filepath, encoding='ascii')
+
+    # Read in oneill's 1001 tunes.
     # tunes1001 = construct_tune_list(glob.glob('../data/oneills/1001/T/*.abc'))
     # data = data.append(tunes1001)
     # tunes1850 = construct_tune_list(glob.glob('../data/oneills/1850/X/*.abc'))
     # data = data.append(tunes1850)
-    #Transform all relative modes to their base keys.
+    # Transform all relative modes to their base keys.
     data = transform_to_base_key(data)
     # Drop the columns that are mistken entries.
     dropcols = ['field10', 'field11', 'field12', 'field13', 'field14',
-         'field15', 'field16', 'field17', 'field18', 'field19', 'field20', 'field21', 'field22']
+                'field15', 'field16', 'field17', 'field18', 'field19',
+                'field20', 'field21', 'field22']
     data.drop(dropcols, axis=1, inplace=True)
     # Drop all rows with empty values.
     data = data.dropna()

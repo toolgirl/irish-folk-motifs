@@ -45,6 +45,8 @@ class NGramModel(object):
         if self.n == 1:
             self.n_grams_count = Counter()
             for tune in series.values:
+                tune = self._pad_string(tune)
+                tune = self._remove_whitespace_punctuation(tune)
                 self.n_grams_count += Counter(tune)
             self._create_frequency()
 
@@ -102,8 +104,6 @@ class NGramModel(object):
 #Returns the sum_of_log_probs and perplexity of a given model.
     def perplexity_score(self, new_tune):
         sum_of_log_probs = 0
-        working_tune = self._pad_string(new_tune)
-        working_tune = self._remove_whitespace_punctuation(working_tune)
         for i in xrange(self.n - 1, len(working_tune)):
             history, token = self.get_window_properties(working_tune, i)
             probability = self.frequencies[history][token]

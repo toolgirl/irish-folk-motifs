@@ -23,15 +23,14 @@ class EnsembleModel(NGramModel):
 
 
     """
-    def __init__(self, n=3):
+    def __init__(self, n=3, weights=None):
         self.n = n
         self.models = None
-        self.grid_weights = []
+        self.grid_weights = None
         self._create_models()
         self.cumulative_score = None
         self.weighted_frequencies = None
-        self.series = None
-        self.weights = None
+        self.weights = weights
 
 
 
@@ -63,7 +62,8 @@ class EnsembleModel(NGramModel):
     def sum_of_log_probabilities(self, new_tune, list_of_weights):
         sum_of_log_probs = 0
         largest_model = self.models[-1]
-        working_tune = largest_model._pad_string_remove_whitespace(new_tune)
+        working_tune = largest_model._pad_string(new_tune)
+        working_tune = largest_model._remove_whitespace_punctuation(working_tune)
         for i in xrange(largest_model.n - 1, len(working_tune)):
             weighted_frequency = 0
             for weight, model in zip(list_of_weights, self.models):
@@ -93,3 +93,35 @@ class EnsembleModel(NGramModel):
     def find_best_weights(self):
         key = max(self.cumulative_score, key=self.cumulative_score.get)
         self.weights = key
+
+
+    def generate(self):
+        #Create a tune by choosing a model based on weights and then a
+        # note based on probability.
+        max_length = 400
+        tune = self.models[-1].n * "?"
+        for i in range(self.n - 1, max_length):
+            print len(self.models), len(self.weights)
+            model = np.random.choice(self.models, 1, p=self.weights)[0]
+            history, ignore = model.get_window_properties(tune, i)
+            choose = model.frequencies[history]
+            if model.n == 1 or len(choose) == 0:
+                unigram_freq = self.models[0].frequencies
+                token = np.random.choice(unigram_freq.keys(), 1, p=unigram_freq.values())[0]
+            else:
+                token = np.random.choice(choose.keys(), 1, p=choose.values())[0]
+            tune += token
+            if token == '?':
+                break
+        tune = tune.replace("?", "")
+        tune = tune.replace(" ", "")
+        return tune
+
+        def insertChar(mystring, position, chartoinsert ):
+            longi = len(mystring)
+            mystring   =  mystring[:position] + chartoinsert + mystring[position:]
+            return mystring
+    # def write_to_json(self):
+    #     with open('model.json', 'w') as fp:
+    #         json.dump(self.models.frequencies, fp)
+    #

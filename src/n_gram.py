@@ -2,6 +2,7 @@ from collections import Counter, defaultdict
 import pandas as pd
 import numpy as np
 from math import log
+import string
 
 
 
@@ -55,7 +56,8 @@ class NGramModel(object):
             self.n_grams_count = defaultdict(lambda: Counter())
             # Go through each tune.
             for tune in series.values:
-                tune = self._pad_string_remove_whitespace(tune)
+                tune = self._pad_string(tune)
+                tune = self._remove_whitespace_punctuation(tune)
                 for i in xrange(self.n - 1, len(tune)):
                     history, token = self.get_window_properties(tune, i)
                     self.n_grams_count[history][token] += 1
@@ -63,11 +65,17 @@ class NGramModel(object):
             self._create_frequency()
 
     # This is to make sure the string has the right amount of history.
-    def _pad_string_remove_whitespace(self, string):
+    def _pad_string(self, tune):
         #pad with n-1 times
         pad = '?' * (self.n - 1)
-        string = pad + string + '?'
-        return string.replace(" ", "")
+        tune = pad + tune + '?'
+        return tune
+
+    def _remove_whitespace_punctuation(self, tune):
+        tune = tune.encode('ascii', errors='ignore')
+        tune = string.translate(tune, None, string.punctuation)
+        tune = tune.replace(" ", "")
+        return tune
 
     # Calculates the frequency of a given n-gram.
     def _create_frequency(self):
@@ -94,7 +102,8 @@ class NGramModel(object):
 #Returns the sum_of_log_probs and perplexity of a given model.
     def perplexity_score(self, new_tune):
         sum_of_log_probs = 0
-        working_tune = self._pad_string_remove_whitespace(new_tune)
+        working_tune = self._pad_string(new_tune)
+        working_tune = self._remove_whitespace_punctuation(working_tune)
         for i in xrange(self.n - 1, len(working_tune)):
             history, token = self.get_window_properties(working_tune, i)
             probability = self.frequencies[history][token]

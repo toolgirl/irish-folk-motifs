@@ -22,15 +22,24 @@ class EnsembleModel(NGramModel):
 
 
     """
-    def __init__(self, n=3, weights=None):
+    def __init__(self, n=3, weights=None, model_frequencies=None, model_n_gram_count=None):
         self.n = n
         self.models = None
         self.grid_weights = None
+        if model_frequencies is None:
+            self.model_frequencies = [None] * self.n
+        else:
+            self.model_frequencies = model_frequencies
+        if model_n_gram_count is None:
+            self.model_n_gram_count = [None] * self.n
+        else:
+            self.model_n_gram_count = model_n_gram_count
         self._create_models()
         self.cumulative_score = None
         self.weighted_frequencies = None
+
         if weights is not None:
-            assert len(self.weights) == len(self.models)
+            assert len(weights) == len(self.models)
         self.weights = weights
 
     # Train the sub models.
@@ -42,8 +51,9 @@ class EnsembleModel(NGramModel):
     # Creates the required number of models specified by n.
     def _create_models(self):
         self.models = []
-        for i in range(1, self.n+1):
-            self.models.append(NGramModel(i))
+        for i in range(self.n):
+            self.models.append(NGramModel(i+1, self.model_frequencies[i], self.model_n_gram_count[i]))
+
 
     def construct_grid_weights(self):
         # Create the list of possible weights to use for grid searching.
@@ -109,13 +119,34 @@ class EnsembleModel(NGramModel):
                 break
         tune = tune.replace("?", "")
         tune = tune.replace(" ", "")
+        with open('test_tune.txt', 'w') as f:
+            f.write(tune)
         return tune
 
-    def write_to_json(self):
+    def write_to_json(self, filename):
         # This collects the ensemble models weights and the submodels
         # frequencies.
         info = {}
         info['weights'] = self.weights
         info['model_frequencies'] = [model.frequencies for model in self.models]
-        with open('models.json', 'w') as fp:
-            json.dump(info, fp, indent=4)
+        info['model_n_gram_count'] = [model.n_gram_count for model in self.models]
+        with open(filename, 'w') as fp:
+            json.dump(info, fp, indent=4, sort_keys=True)
+
+    @classmethod
+    def load_from_json(cls, filename):
+        em = None
+        with open(filename) as j:
+            info = json.load(j)
+            n = len(info['weights'])
+            weights = info['weights']
+            frequencies = info['model_frequencies']
+            n_gram_count = info['model_n_gram_count']
+            em = cls(n, weights, frequencies, n_gram_count)
+        return em
+
+    def get_most_common_grams(self):
+        sounds = []
+        for model in self.models:
+            sounds.append(model.most_common_n_grams)
+        return sounds

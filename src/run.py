@@ -77,18 +77,27 @@ g_test = g_shuffled[-1883:]
 weights = (0.0, 0.20000000000000001, 0.20000000000000001, 0.20000000000000001, 0.20000000000000001, 0.19999999999999996)
 start_time = time.time()
 em = EnsembleModel(n=6, weights=weights)
-em.fit_sub_models(g_tunes['abc'])
+em.fit_sub_models(small_r_train['abc'])
+em.write_to_json('test_model.json')
+em2 = EnsembleModel.load_from_json('test_model.json')
+em2.write_to_json('test_model2.json')
+
 # em.construct_grid_weights()
 # print("--- %s seconds ---" % (time.time() - start_time))
 # print "I'm grid searching"
 # em.grid_search(test[0])
 # print("--- %s seconds ---" % (time.time() - start_time))
-tune = em.generate()
-em.write_to_json()
+# with open('test_tune.abc', 'r') as f:
+#     tune = f.read()
 
-tunefr = TuneFragment({'mode': 'G', 'meter': '6/8', 'abc': tune})
-tunefr.play()
+# em.write_to_json('all_data_models.json')
 
+# tunefr = TuneFragment(tune)
+
+# tunefr.create_abcfile(filename='test_tune.abc')
+# tunefr.play()
+
+# EnsembleModel.load_from_json('all_data_models.json')
 
 # def make_ensembles(train, test, n_grams):
 #     "There are {} rows of train data".format(len(train))

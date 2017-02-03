@@ -22,7 +22,7 @@ class TuneFragment(object):
         self._temp_dir = mkdtemp()
         self._abc_file = os.path.join(self._temp_dir, 'current.abc')
         self._midi_file = os.path.join(self._temp_dir, 'current.mid')
-        self._create_abcfile()
+        self.create_abcfile()
         self._convert_abc_2_midi()
 
 
@@ -36,11 +36,13 @@ class TuneFragment(object):
     def sheet_music(self):
         pass
 
-    def _create_abcfile(self):
-        with open(self._abc_file, 'w') as f:
+    def create_abcfile(self, filename=None):
+        if filename is None:
+            filename = self._abc_file
+        with open(filename, 'w') as f:
             f.write('X:1\n')
             f.write('M:{}\n'.format(self.data['meter']))
-            f.write('L:1/8\n'.format())
+            f.write('L:1/16\n'.format())
             if 'type' in self.data:
                 f.write('T:{}\n'.format(self.data['type']))
             f.write('K:{}\n'.format(self.data['mode']))

@@ -41,12 +41,12 @@ g_tunes = data[data['mode'] == 'Gmajor']
 
 # Setting up the shuffle.
 np.random.seed(seed=6)
-shuffled = reel_data.reindex(np.random.permutation(reel_data.index))
+reel_shuffled = reel_data.reindex(np.random.permutation(reel_data.index))
 
 #REELS
-reel_train = shuffled[:5214]
-reel_verification = shuffled[5214:7822]
-reel_test = shuffled[-2608:]
+reel_train = reel_shuffled[:int(len(reel_shuffled)* 0.5)]
+reel_verification = reel_shuffled[5214:7822]
+reel_test = reel_shuffled[-2608:]
 # print "There are {} empty cells.".format(reel_train['abc'].isnull().sum())
 small_r_train = reel_train[:500]
 small_r_test = reel_train[-500:]
@@ -56,7 +56,7 @@ small_r_test = reel_train[-500:]
 
 #NOT REELS
 not_reel_shuffled = not_reel.reindex(np.random.permutation(not_reel.index))
-not_reel_train = not_reel_shuffled[:8052]
+not_reel_train = not_reel_shuffled[:5000]
 not_reel_verification = not_reel_shuffled[8052:12078]
 not_reel_test = not_reel_shuffled[-4026:]
 
@@ -78,16 +78,24 @@ dg_test = d_test.append(g_test)
 y_test = dg_test.reindex(np.random.permutation(dg_test.index))
 
 
-
-class1 = d_train['mode'].iloc[0]
-class2 = g_train['mode'].iloc[0]
+# Train and test D, G key classifier. Print confusion Matrix.
+classd = d_train['mode'].iloc[0]
+classg = g_train['mode'].iloc[0]
 bngc = BinaryNGramClassifier()
 bngc.train(d_train['abc'], g_train['abc'])
-bngc.predict(y_test['abc'], class1, class2)
+bngc.predict(y_test['abc'], classd, classg)
 bngc.score_result(y_test['mode'])
+
+
+# Train and test binary classifier training it on reels and not reels.
+classd = d_train['mode'].iloc[0]
+classg = g_train['mode'].iloc[0]
+bngc1 = BinaryNGramClassifier()
+# Essentially trained on garbage.
+bngc1.train(reel_train['abc'], not_reel_train['abc'])
+bngc1.predict(y_test['abc'], classd, classg)
+bngc1.score_result(y_test['mode'])
 # Train and classify data:
-
-
 
 
 

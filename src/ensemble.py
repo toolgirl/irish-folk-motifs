@@ -5,6 +5,16 @@ from collections import defaultdict
 from math import log
 import json
 
+DEFAULT_WEIGHTS = {
+                    1: (1,),
+                    2: (0.0, 1.0),
+                    3: (0.0, 0.2, 0.8),
+                    4: (0.0, 0.2, 0.2, 0.6),
+                    5: (0.0, 0.2, 0.2, 0.2, 0.4),
+                    6: (0.0, 0.2, 0.2, 0.2, 0.2, 0.2),
+                    7: (0.0, 0.2, 0.2, 0.2, 0.2, 0.2, 0.0)
+                    }
+
 
 class EnsembleModel(NGramModel):
     """
@@ -22,7 +32,7 @@ class EnsembleModel(NGramModel):
 
 
     """
-    def __init__(self, n=3, weights=None, model_frequencies=None, model_n_gram_count=None):
+    def __init__(self, n=6, weights=None, model_frequencies=None, model_n_gram_count=None):
         self.n = n
         self.models = None
         self.grid_weights = None
@@ -37,10 +47,14 @@ class EnsembleModel(NGramModel):
         self._create_models()
         self.cumulative_score = None
         self.weighted_frequencies = None
-
         if weights is not None:
             assert len(weights) == len(self.models)
-        self.weights = weights
+            self.weights = weights
+        else:
+            self.weights = DEFAULT_WEIGHTS[self.n]
+
+
+
 
     # Train the sub models.
     def fit_sub_models(self, series):
@@ -65,16 +79,18 @@ class EnsembleModel(NGramModel):
                 x.append(last)
                 self.grid_weights.append(tuple(x))
 
-    def sum_of_log_probabilities(self, new_tune, list_of_weights):
+    def sum_of_log_probabilities(self, new_tune, weights=None):
         # cumulative sum of the probabilities of a given token given its
         # history.
+        if weights is None:
+            weights = self.weights
         sum_of_log_probs = 0
         largest_model = self.models[-1]
         working_tune = largest_model._pad_string(new_tune)
         working_tune = largest_model._remove_whitespace_punctuation(working_tune)
         for i in xrange(largest_model.n - 1, len(working_tune)):
             weighted_frequency = 0
-            for weight, model in zip(list_of_weights, self.models):
+            for weight, model in zip(weights, self.models):
                 history, token = model.get_window_properties(working_tune, i)
                 if model.n == 1:
                     weighted_frequency += model.frequencies[token] * weight

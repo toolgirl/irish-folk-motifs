@@ -16,6 +16,7 @@ import os
 import cPickle as pickle
 import json
 import matplotlib.pyplot as plt
+from classfier import Classifier
 
 
 
@@ -68,13 +69,28 @@ g_verification = g_shuffled[3766:5649]
 g_test = g_shuffled[-1883:]
 
 
+# Train and classify data:
+
+
+
+
+
 
 # PLAY FRAGMENTS
 # tunefr = TuneFragment({'mode': 'G', 'meter': '6/8', 'abc': '|:GE|D2B BAG|BdB A2B|GED G2A|B2B AGE|\rD2B BAG|BdB A2B|GED G2A|BGE G:|\rBd|e2e edB|ege edB|d2B def|gfe dBA|\rG2A B2d|ege d2B|AGE G2A|BGE G:|'})
 # tunefr.play()
 
 
-weights = (0.0, 0.20000000000000001, 0.20000000000000001, 0.20000000000000001, 0.20000000000000001, 0.19999999999999996)
+
+
+
+
+
+
+
+
+
+# weights = (0.0, 0.20000000000000001, 0.20000000000000001, 0.20000000000000001, 0.20000000000000001, 0.19999999999999996)
 start_time = time.time()
 em = EnsembleModel(n=6, weights=weights)
 em.fit_sub_models(small_r_train['abc'])

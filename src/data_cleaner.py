@@ -7,7 +7,7 @@ Reads in the data from all the different sources and puts them all in a pandas d
 '''
 
 def read_data(filepath):
-    data = pd.read_json(filepath, encoding='ascii')
+    data = pd.read_json(filepath)
 
     # Read in oneill's 1001 tunes.
     # tunes1001 = construct_tune_list(glob.glob('../data/oneills/1001/T/*.abc'))
@@ -26,7 +26,8 @@ def read_data(filepath):
     data = drop_data_subset(data, 'type', 'mazurka')
     data = drop_data_subset(data, 'type', 'strathspey')
     data = drop_data_subset(data, 'type', 'three-two')
-    data.reset_index(drop=True)
+    data['mode'] =data['mode'].astype(str)
+    data.reset_index(drop=True, inplace=True)
     return data
 
 

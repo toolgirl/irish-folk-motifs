@@ -4,7 +4,7 @@ import pandas as pd
 from pandas_ml import ConfusionMatrix
 
 
-class Classifier(object):
+class BinaryNGramClassifier(object):
     '''
     Takes in different models and a new tune and predicts which class the tune belongs to. (Right now model1 is D and model 2 is G)
     Parameters
@@ -27,10 +27,10 @@ class Classifier(object):
 
 
     def predict(self, new_series, class1name, class2name):
-        prediction = np.empty(len(new_series), dtype=str)
+        prediction = [None] * len(new_series)
         for i, tune in enumerate(new_series):
-            sum1 = model1.sum_of_log_probabilities(tune)
-            sum2 = model2.sum_of_log_probabilities(tune)
+            sum1 = self.model1.sum_of_log_probabilities(tune)
+            sum2 = self.model2.sum_of_log_probabilities(tune)
             if sum1 > sum2:
                 prediction[i] = class1name
             else:
@@ -38,10 +38,12 @@ class Classifier(object):
         self.prediction = pd.Series(prediction)
 
     def score_result(self, series_of_actual_y):
-        if len(array) != len(self.prediction):
+
+        if len(series_of_actual_y) != len(self.prediction):
             print "Please pass series of the same size as y"
         else:
-            y_actu = pd.Series(series_of_actual_y, name='Actual')
-            y_pred = pd.Series(self.prediction, name='Predicted')
+            y_actu = list(pd.Series(series_of_actual_y, name='Actual'))
+            y_pred = list(pd.Series(self.prediction, name='Predicted'))
             cm = ConfusionMatrix(y_actu, y_pred)
+            print cm
             cm.print_stats()

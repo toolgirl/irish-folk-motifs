@@ -16,7 +16,8 @@ import os
 import cPickle as pickle
 import json
 import matplotlib.pyplot as plt
-from classfier import Classifier
+from classifier import BinaryNGramClassifier
+
 
 
 
@@ -33,12 +34,13 @@ d_tunes = data[data['mode'] == 'Dmajor']
 g_tunes = data[data['mode'] == 'Gmajor']
 
 
+
 # scriptdirectory = os.path.dirname(os.path.realpath(__file__))
 # tunes1850 = construct_tune_list(glob.glob(os.path.join(scriptdirectory, '../data/oneills/1850/X/*.abc')))
 # data = pd.DataFrame(tunes1850)
 
 # Setting up the shuffle.
-# np.random.seed(seed=6)
+np.random.seed(seed=6)
 shuffled = reel_data.reindex(np.random.permutation(reel_data.index))
 
 #REELS
@@ -49,26 +51,40 @@ reel_test = shuffled[-2608:]
 small_r_train = reel_train[:500]
 small_r_test = reel_train[-500:]
 
+
+
+
 #NOT REELS
 not_reel_shuffled = not_reel.reindex(np.random.permutation(not_reel.index))
 not_reel_train = not_reel_shuffled[:8052]
 not_reel_verification = not_reel_shuffled[8052:12078]
 not_reel_test = not_reel_shuffled[-4026:]
 
-
+train_size = 0.75
 #D tunes
 d_shuffled = d_tunes.reindex(np.random.permutation(d_tunes.index))
-d_train = d_shuffled[:3611]
-d_verification = d_shuffled[3611:5416]
-d_test = d_shuffled[-1805:]
+d_train = d_shuffled[:int(len(d_shuffled) * train_size)]
+d_test = d_shuffled[len(d_train):]
+
 
 #G tunes
 g_shuffled = g_tunes.reindex(np.random.permutation(g_tunes.index))
-g_train = g_shuffled[:3766]
-g_verification = g_shuffled[3766:5649]
-g_test = g_shuffled[-1883:]
+g_train = g_shuffled[:int(len(g_shuffled) * train_size)]
+g_test = g_shuffled[len(g_train):]
+
+# Create DG dataframe.
+
+dg_test = d_test.append(g_test)
+y_test = dg_test.reindex(np.random.permutation(dg_test.index))
 
 
+
+class1 = d_train['mode'].iloc[0]
+class2 = g_train['mode'].iloc[0]
+bngc = BinaryNGramClassifier()
+bngc.train(d_train['abc'], g_train['abc'])
+bngc.predict(y_test['abc'], class1, class2)
+bngc.score_result(y_test['mode'])
 # Train and classify data:
 
 
@@ -91,12 +107,12 @@ g_test = g_shuffled[-1883:]
 
 
 # weights = (0.0, 0.20000000000000001, 0.20000000000000001, 0.20000000000000001, 0.20000000000000001, 0.19999999999999996)
-start_time = time.time()
-em = EnsembleModel(n=6, weights=weights)
-em.fit_sub_models(small_r_train['abc'])
-em.write_to_json('test_model.json')
-em2 = EnsembleModel.load_from_json('test_model.json')
-em2.write_to_json('test_model2.json')
+# start_time = time.time()
+# em = EnsembleModel(n=6, weights=weights)
+# em.fit_sub_models(small_r_train['abc'])
+# em.write_to_json('test_model.json')
+# em2 = EnsembleModel.load_from_json('test_model.json')
+# em2.write_to_json('test_model2.json')
 
 # em.construct_grid_weights()
 # print("--- %s seconds ---" % (time.time() - start_time))

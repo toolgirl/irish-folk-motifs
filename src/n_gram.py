@@ -1,6 +1,6 @@
-from collections import Counter, defaultdict
 import pandas as pd
 import numpy as np
+from collections import Counter, defaultdict
 from math import log
 import string
 
@@ -133,4 +133,4 @@ class NGramModel(object):
     # Returns the 10 most common n_grams.
     @property
     def most_common_n_grams(self):
-        return self.n_gram_count.most_common(10)
+        return self.n_gram_count.most_common(20)

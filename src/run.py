@@ -40,7 +40,7 @@ g_tunes = data[data['mode'] == 'Gmajor']
 # data = pd.DataFrame(tunes1850)
 
 # Setting up the shuffle.
-np.random.seed(seed=6)
+# np.random.seed(seed=6)
 reel_shuffled = reel_data.reindex(np.random.permutation(reel_data.index))
 
 #REELS
@@ -79,56 +79,44 @@ y_test = dg_test.reindex(np.random.permutation(dg_test.index))
 
 
 # Train and test D, G key classifier. Print confusion Matrix.
-classd = d_train['mode'].iloc[0]
-classg = g_train['mode'].iloc[0]
-bngc = BinaryNGramClassifier()
-bngc.train(d_train['abc'], g_train['abc'])
-bngc.predict(y_test['abc'], classd, classg)
-bngc.score_result(y_test['mode'])
-
-
-# Train and test binary classifier training it on reels and not reels.
-classd = d_train['mode'].iloc[0]
-classg = g_train['mode'].iloc[0]
-bngc1 = BinaryNGramClassifier()
-# Essentially trained on garbage.
-bngc1.train(reel_train['abc'], not_reel_train['abc'])
-bngc1.predict(y_test['abc'], classd, classg)
-bngc1.score_result(y_test['mode'])
-# Train and classify data:
-
-
+# classd = d_train['mode'].iloc[0]
+# classg = g_train['mode'].iloc[0]
+# bngc = BinaryNGramClassifier()
+# bngc.train(d_train['abc'], g_train['abc'])
+# bngc.predict(y_test['abc'], classd, classg)
+# bngc.score_result(y_test['mode'])
+#
+#
+# # Train and test binary classifier training it on reels and not reels.
+# classd = d_train['mode'].iloc[0]
+# classg = g_train['mode'].iloc[0]
+# bngc1 = BinaryNGramClassifier()
+# # Essentially trained on garbage.
+# bngc1.train(reel_train['abc'], not_reel_train['abc'])
+# bngc1.predict(y_test['abc'], classd, classg)
+# bngc1.score_result(y_test['mode'])
+# # Train and classify data:
 
 
 # PLAY FRAGMENTS
-# tunefr = TuneFragment({'mode': 'G', 'meter': '6/8', 'abc': '|:GE|D2B BAG|BdB A2B|GED G2A|B2B AGE|\rD2B BAG|BdB A2B|GED G2A|BGE G:|\rBd|e2e edB|ege edB|d2B def|gfe dBA|\rG2A B2d|ege d2B|AGE G2A|BGE G:|'})
+weights = (0.0, 0.0, 0.0, 0.0, 0.0, 1.0)
+start_time = time.time()
+em = EnsembleModel()
+em.fit_sub_models(g_train['abc'])
+grams = em.get_most_common_grams()
+print grams
+# tune = em.generate(weights)
+
+tune2 = '4Bd4dFAGa2gGfBA2eBGAEFEGFGEF4AdGcdcdBdg2bfgdBgAefGe2dgfed2ABGz2GA2BcAG'
+# tunefr = TuneFragment({'mode': 'G', 'meter': '6/8', 'abc': tune})
 # tunefr.play()
 
-
-
-
-
-
-
-
-
-
-
-# weights = (0.0, 0.20000000000000001, 0.20000000000000001, 0.20000000000000001, 0.20000000000000001, 0.19999999999999996)
-# start_time = time.time()
-# em = EnsembleModel(n=6, weights=weights)
-# em.fit_sub_models(small_r_train['abc'])
-# em.write_to_json('test_model.json')
-# em2 = EnsembleModel.load_from_json('test_model.json')
-# em2.write_to_json('test_model2.json')
 
 # em.construct_grid_weights()
 # print("--- %s seconds ---" % (time.time() - start_time))
 # print "I'm grid searching"
 # em.grid_search(test[0])
 # print("--- %s seconds ---" % (time.time() - start_time))
-# with open('test_tune.abc', 'r') as f:
-#     tune = f.read()
 
 # em.write_to_json('all_data_models.json')
 

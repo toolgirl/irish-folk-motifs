@@ -39,6 +39,9 @@ class TuneFragment(object):
     def create_abcfile(self, filename=None):
         if filename is None:
             filename = self._abc_file
+        else:
+            self._abc_file = filename
+
         with open(filename, 'w') as f:
             f.write('X:1\n')
             f.write('M:{}\n'.format(self.data['meter']))
@@ -46,6 +49,7 @@ class TuneFragment(object):
             if 'type' in self.data:
                 f.write('T:{}\n'.format(self.data['type']))
             f.write('K:{}\n'.format(self.data['mode']))
+            f.write('%%MIDI program 73\n')
             f.write(self.data['abc'])
 
 

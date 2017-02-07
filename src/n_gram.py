@@ -49,10 +49,12 @@ class NGramModel(object):
         else:
             self.n_gram_count = None
 
-    # Create dictionary of Counter() with the n-gram as key and the
-    # follwing next letter as key and the count of that occuring as
-    # value.
     def fit(self, series):
+        '''
+        Create dictionary of Counter() with the n-gram as key and the
+        follwing next letter as key and the count of that occuring as
+        value.
+        '''
         if self.n == 1:
             self.token_count = Counter()
             for tune in series.values:
@@ -76,8 +78,10 @@ class NGramModel(object):
                     self.n_gram_count[ngram] += 1
             self._create_frequency()
 
-    # Returns the  psydo probability and perplexity of a given model.
     def perplexity_score(self, new_tune):
+        '''
+        Returns the  psydo probability and perplexity of a given model for a new tune.
+        '''
         sum_of_log_probs = 0
         for i in xrange(self.n - 1, len(working_tune)):
             history, token = self.get_window_properties(working_tune, i)
@@ -87,15 +91,19 @@ class NGramModel(object):
         self.score = sum_of_log_probs
         return perplexity, sum_of_log_probs
 
-    # Start reading at the token and get the history of it.
     def get_window_properties(self, tune, i):
+        '''
+        Start reading at the token and get the history of it.
+        '''
         window = tune[i - self.n + 1:i + 1]
         history = window[:-1]
         token = window[-1]
         return history, token
 
-    # This ensures a string has n-1 amount of history.
     def _pad_string(self, tune):
+        '''
+        # This ensures a string has n-1 amount of history.
+        '''
         pad = '?' * (self.n - 1)
         tune = pad + tune + '?'
         return tune
@@ -106,9 +114,11 @@ class NGramModel(object):
         tune = tune.replace(" ", "")
         return tune
 
-    # Calculates the frequency of a token by deviding this token by
-    # the number of tokens that follow a given history. Updates self.frequencies.
     def _create_frequency(self):
+        '''
+        Calculates the frequency of a token by deviding this token by
+        the number of tokens that follow a given history. Updates self.frequencies.
+        '''
         n_total = 0
         # Special case for n == 1.
         if self.n == 1:
@@ -123,8 +133,10 @@ class NGramModel(object):
                 total_n = float(sum(counter.values()))
                 self.frequencies[given] = defaultdict(float, {k: v/total_n for k, v in counter.iteritems()})
 
-        # Converts frequencies if handed in at instatiation to a defaultdict.
         def _convert_to_defaultdict(self, frequencies):
+            '''
+            Converts frequencies if handed in at instatiation to a defaultdict.
+            '''
             if self.n == 1:
                 self.frequencies = defaultdict(float, frequencies)
             else:
@@ -132,7 +144,9 @@ class NGramModel(object):
                 for history, token in frequencies.iteritems():
                     self.frequencies[history] = defaultdict(float, token)
 
-    # Returns the 10 most common n_grams.
     @property
     def most_common_n_grams(self):
+        '''
+        Returns the 10 most common n_grams.
+        '''
         return self.n_gram_count.most_common(20)

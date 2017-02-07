@@ -1,3 +1,5 @@
+# Copyright (C) 2017  Zia Rauwolf. See LICENSE.txt
+
 import numpy as np
 import itertools
 from collections import defaultdict
@@ -65,9 +67,11 @@ class EnsembleModel(NGramModel):
         else:
             self.weights = DEFAULT_WEIGHTS[self.n]
 
-    # Instantiates an instance of EnsembleModel from a .json file.
     @classmethod
     def load_from_json(cls, filename):
+        '''
+        Instantiates an instance of EnsembleModel from a .json file.
+        '''
         em = None
         with open(filename) as j:
             info = json.load(j)
@@ -78,10 +82,12 @@ class EnsembleModel(NGramModel):
             em = cls(n, weights, frequencies, n_gram_count)
         return em
 
-    # Creates a dump of the instance of a given model for later use.
     def write_to_json(self, filename):
-        # This collects the ensemble models weights and the submodels
-        # frequencies.
+        '''
+        Creates a dump of the instance of a given model for later use.
+        It collects the ensemble models weights, the submodel's
+        frequencies and n_gram_count.
+        '''
         info = {}
         info['weights'] = self.weights
         info['model_frequencies'] = [model.frequencies for model in self.models]
@@ -89,15 +95,20 @@ class EnsembleModel(NGramModel):
         with open(filename, 'w') as fp:
             json.dump(info, fp, indent=4, sort_keys=True)
 
-    # Train the sub models.
     def fit_sub_models(self, series):
+        '''
+        Train the sub models.
+        '''
         for i, model in enumerate(self.models):
             print "Training model {}".format(i)
             model.fit(series)
 
-    # Cumulative sum of the probabilities of a given token given its
-    # history.
+
     def sum_of_log_probabilities(self, new_tune, weights=None):
+        '''
+        Cumulative sum of the probabilities of a given token given its
+        history.
+        '''
         if weights is None:
             weights = self.weights
         sum_of_log_probs = 0
@@ -117,7 +128,9 @@ class EnsembleModel(NGramModel):
 
     # Next 3 methods conduct the grid search for the optimal weights.
     def construct_grid_weights(self):
-        # Create the list of possible weights to use for grid searching.
+        '''
+        Create the list of possible weights to use for grid searching.
+        '''
         list_of_weights = np.linspace(0, 1, 6)
         for element in itertools.product(list_of_weights, repeat=self.n - 1):
             if sum(element) <= 1:
@@ -127,10 +140,12 @@ class EnsembleModel(NGramModel):
                 self.grid_weights.append(tuple(x))
 
     def grid_search(self, series):
-        # This needs to take the different weights and different sized
-        # n_grams and give back the best combination.
+        '''
+        This needs to take the different weights and different sized
+        n_grams and give back the best combination of weights for a given trained model.
+        '''
         self.cumulative_score = defaultdict(float)
-        # Get the weights of a given trained model.
+
         for weights in self.grid_weights:
             for tune in series:
                 sums = self.sum_of_log_probabilities(tune, weights)
@@ -143,8 +158,10 @@ class EnsembleModel(NGramModel):
         self.weights = key
 
     def generate(self, weights=None):
-        # Create a tune by choosing a model based on weights and then a
-        # note based on probability.
+        '''
+        Create a tune by choosing a model based on weights and then a
+        note based on probability.
+        '''
         if weights is not None:
             weights = weights
         else:
@@ -170,16 +187,21 @@ class EnsembleModel(NGramModel):
             f.write(tune)
         return tune
 
-    # Returns the most common patterns from the higher grams.
     def get_most_common_grams(self):
+        '''
+        Returns the most common patterns from the higher grams.
+        '''
         sounds = []
-        assert self.n > 3:
+        assert self.n > 3
         for model in self.models[3:]:
             sounds.append(model.most_common_n_grams)
         return sounds
 
-    # Creates the required number of models specified by n.
+
     def _create_models(self):
+        '''
+        Creates the required number of models specified by n.
+        '''
         self.models = []
         for i in range(self.n):
             self.models.append(NGramModel(i+1, self.model_frequencies[i], self.model_n_gram_count[i]))

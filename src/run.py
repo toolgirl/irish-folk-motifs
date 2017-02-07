@@ -98,13 +98,13 @@ y_test = dg_test.reindex(np.random.permutation(dg_test.index))
 # # Train and classify data:
 
 
-# PLAY FRAGMENTS
-weights = (0.0, 0.0, 0.0, 0.0, 0.0, 1.0)
-start_time = time.time()
-em = EnsembleModel()
-em.fit_sub_models(g_train['abc'])
-grams = em.get_most_common_grams()
-print grams
+# # PLAY FRAGMENTS
+# weights = (0.0, 0.0, 0.0, 0.0, 0.0, 1.0)
+# start_time = time.time()
+# em = EnsembleModel()
+# em.fit_sub_models(g_train['abc'])
+# grams = em.get_most_common_grams()
+# print grams
 # tune = em.generate(weights)
 
 tune2 = '4Bd4dFAGa2gGfBA2eBGAEFEGFGEF4AdGcdcdBdg2bfgdBgAefGe2dgfed2ABGz2GA2BcAG'
@@ -156,14 +156,15 @@ tune2 = '4Bd4dFAGa2gGfBA2eBGAEFEGFGEF4AdGcdcdBdg2bfgdBgAefGe2dgfed2ABGz2GA2BcAG'
 # # results = make_ensembles(d_train['abc'], d_verification['abc'], 8)
 # # results = make_ensembles(g_train['abc'], g_verification['abc'], 8)
 #
-# df = pd.DataFrame.from_dict(results.items())
-# df.columns = ['weights', 'score']
-# ns = [len(X) for X in results.keys() ]
-# df['n']=ns
-# df.sort('n',ascending=True,inplace=True)
-# df.to_csv('results.csv')
-# # plt.scatter(df.n.values.tolist(),df.score.values.tolist() )
-#
+
+df = pd.read_csv('../results/15gram.csv')
+df.columns = ['weights', 'score']
+ns = [len(X) for X in results.keys() ]
+df['n']=ns
+df.sort('n',ascending=True,inplace=True)
+df.to_csv('results.csv')
+plt.scatter(df.n.values.tolist(),df.score.values.tolist() )
+
 #
 # # Testing model with words. It works
 # # words = pd.read_table('../data/alice.txt')

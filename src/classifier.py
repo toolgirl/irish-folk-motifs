@@ -1,3 +1,5 @@
+# Copyright (C) 2017  Zia Rauwolf. See LICENSE.txt
+
 from ensemble import EnsembleModel
 import numpy as np
 import pandas as pd
@@ -9,6 +11,7 @@ class BinaryNGramClassifier(object):
     Takes in different models and a new tune and predicts which class the tune belongs to. (Right now model1 is D and model 2 is G)
     Parameters
     ----------
+    model1: EnsembleModel(NGramModel) object
 
     Attributes
     ----------

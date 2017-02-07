@@ -8,3 +8,6 @@ full_tune = 'gAegGf2gGgAcffAeFB3g22Gd4Ae73B2fBB2cg2cgA2AG2AG22AGBBddgBe2fAgd2gG2
 tune_chunk = '4Bd4dFAGa2gGfBA2eBGAEFEGFGEF4AdGcdcdBdg2bfgdBgAefGe2dgfed2ABGz2GA2BcAG'
 tunefr = TuneFragment({'mode': 'G', 'meter': '6/8', 'abc': full_tune})
 tunefr.play()
+
+
+# timidity -Ow -o - input.mid | lame - output.mp3

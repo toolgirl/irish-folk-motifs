@@ -1,3 +1,5 @@
+# Copyright (C) 2017  Zia Rauwolf. See LICENSE.txt
+
 import pandas as pd
 import numpy as np
 from collections import Counter, defaultdict

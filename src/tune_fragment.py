@@ -1,3 +1,5 @@
+# Copyright (C) 2017  Zia Rauwolf. See LICENSE.txt
+
 import subprocess
 import pandas as pd
 from tempfile import mkdtemp
@@ -11,17 +13,26 @@ class TuneFragment(object):
 
     def __init__(self, data):
         """
-        Instantiates a tunefragment from the input.
+        Creates a .abc file and plays it with timidity from a text file using abc2midi.
 
         Parameters
         ----------
-        data : dict-like
-            Pandas Series or dict that contains 'mode' and 'abc' keys.
+        data : .txt
+            Text file that contains abc notation without any of the required notations for .abc.
+
+        Attributes
+        ----------
+        _temp_dir : tempfile
+            Temporary directory to put the working files in.
+        _abc_file : abc file
+            Path and file for temporary abc file.
+        _midi_file : midi file
+            Path and name for temporary midi file.
         """
         self.data = data
         self._temp_dir = mkdtemp()
         self._abc_file = os.path.join(self._temp_dir, 'current.abc')
-        self._midi_file = os.path.join(self._temp_dir, 'current.mid')
+        self._midi_file = os.path.join('/Users/zia/galvanize', 'current.mid')
         self.create_abcfile()
         self._convert_abc_2_midi()
 
@@ -32,16 +43,12 @@ class TuneFragment(object):
         """
         subprocess.call(['timidity', self._midi_file])
 
-
-    def sheet_music(self):
-        pass
-
+    # Writes the necessary lines to turn a simple text file into .abc.
     def create_abcfile(self, filename=None):
         if filename is None:
             filename = self._abc_file
         else:
             self._abc_file = filename
-
         with open(filename, 'w') as f:
             f.write('X:1\n')
             f.write('M:{}\n'.format(self.data['meter']))
@@ -52,7 +59,6 @@ class TuneFragment(object):
             f.write('%%MIDI program 73\n')
             f.write(self.data['abc'])
 
-
     def _convert_abc_2_midi(self):
         '''
         INPUT: .abc file
@@ -60,7 +66,6 @@ class TuneFragment(object):
         one bar if necessary padded with z's that will still play
         '''
         subprocess.call(['abc2midi', self._abc_file, '-BF','-o', self._midi_file])
-
 
 
     def _pad_fragement_with_breaks(self):

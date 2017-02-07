@@ -43,8 +43,10 @@ class TuneFragment(object):
         """
         subprocess.call(['timidity', self._midi_file])
 
-    # Writes the necessary lines to turn a simple text file into .abc.
     def create_abcfile(self, filename=None):
+        '''
+        Writes the necessary lines to convert .txt to .abc.
+        '''
         if filename is None:
             filename = self._abc_file
         else:
@@ -56,7 +58,7 @@ class TuneFragment(object):
             if 'type' in self.data:
                 f.write('T:{}\n'.format(self.data['type']))
             f.write('K:{}\n'.format(self.data['mode']))
-            f.write('%%MIDI program 73\n')
+            f.write('%%MIDI program 73\n') #plays flute (piano is program 0.)
             f.write(self.data['abc'])
 
     def _convert_abc_2_midi(self):
@@ -66,8 +68,3 @@ class TuneFragment(object):
         one bar if necessary padded with z's that will still play
         '''
         subprocess.call(['abc2midi', self._abc_file, '-BF','-o', self._midi_file])
-
-
-    def _pad_fragement_with_breaks(self):
-        #takes a fragement and fils it with zs until the minimum has been met.
-        pass

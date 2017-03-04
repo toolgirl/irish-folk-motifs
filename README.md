@@ -94,9 +94,9 @@ What I found was surprising to me and yet not on second thought.
 
 I decided to look at the token plus the history to get an idea of the patterns.
 
-When looking at the twenty most frequent patterns in the larger windows, reasoning that the smaller patterns wouldn't be that useful since they wouldn't be big enough to give me much information, I found that with a few exceptions the predominant patterns were scales with the occasional arpeggio or turnaround in it. So the most common run of 6 notes in the key of G is: ![here](/img/top_twenty_patterns_6.png?raw=true "Top twenty patterns of six notes in G") 
+When looking at the twenty most frequent patterns in the larger windows, reasoning that the smaller patterns wouldn't be that useful since they wouldn't be big enough to give me much information, I found that with a few exceptions the predominant patterns were scales with the occasional arpeggio or turnaround in it. So the most common run of 6 notes in the key of G is: ![here](/img/6-gram_patterns_with_title.png?raw=true) 
 
-![Alt text](/relative/path/to/img.jpg?raw=true "Optional Title")
+
 
 
 

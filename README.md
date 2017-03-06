@@ -1,4 +1,4 @@
-#Exploring Diddle Soup
+# Exploring Diddle Soup
 
 Five years ago, when I started being interested in Irish Folk music I thought it sounded to me like diddle soup.
 When I went all bright eye to the sessions and sat not really playing my flute because I could barely make noise on it, I would hear musicians discuss how they thought that this, or that other tune (its only called a song if someone is singing, if its just instruments its called a tune) was very interesting. I would sit there and silently think to myself: "I have no idea what they were talking about!", because frankly, to me they all sounded the same.
@@ -25,7 +25,7 @@ Given the crowdsourced origin of my data I decided to drop NaNs and or tunes tha
 
 While the predominant amount of tunes are Irish on this website there are a significant amount of Scottish, Swedish, possibly Welsh and Mazurkas originally from Poland. I decided to deal with that by deleting anything that I specifically knew not to be Irish. These were: strathspeys, three-twos and mazurkas. I also deleted the obviously wrong entries.
 
-This is an incomplete solution as there are plenty of Scottish reels and jigs. However, within the timeframe of the two weeks I had to complete my project I did not have time to do the research I would need to separate the Irish from the Scottish tunes. Additionally, I would argue that the differences between Scottish and Irish folk music, while important when executing the game that is playing folk music, are unimportant from a linguistic perspective. These being comparable to two very closely related languages that have significant lexical and grammatical overlap. An example in language terms would be Hawai'ian and Maori. For that reason I decided to go ahead with the assumption that [jigs](https://en.wikipedia.org/wiki/Jig) and [reels](https://en.wikipedia.org/wiki/Reel_(dance) are close enough.
+This is an incomplete solution as there are plenty of Scottish reels and jigs. However, within the timeframe of the two weeks I had to complete my project I did not have time to do the research I would need to separate the Irish from the Scottish tunes. Additionally, I would argue that the differences between Scottish and Irish folk music, while important when executing the game that is playing folk music, are unimportant from a linguistic perspective. These being comparable to two very closely related languages that have significant lexical and grammatical overlap. An example in language terms would be Hawai'ian and Maori. For that reason I decided to go ahead with the assumption that [jigs](https://en.wikipedia.org/wiki/Jig) and [reels](https://en.wikipedia.org/wiki/Reel_(dance)) are close enough.
 
 I considered normalizing the data. I considered using [midi note numbers](http://www.electronics.dit.ie/staff/tscarff/Music_technology/midi/midi_note_numbers_for_octaves.htm) to abstract away from the key bound notes. Though again the time constraint and the inconsistency of the data gave me pause. I decide instead to go ahead with the data as is. I can argue for normalizing and saying that it would be interesting to see how things behave if I remove the key differences. I also think that it is useful to take key information into account since one could argue that the key of a tune gives rise to the patterns in it.
 
@@ -94,7 +94,7 @@ What I found was surprising to me and yet not on second thought.
 
 I decided to look at the token plus the history to get an idea of the patterns.
 
-When looking at the twenty most frequent patterns in the larger windows, reasoning that the smaller patterns wouldn't be that useful since they wouldn't be big enough to give me much information, I found that with a few exceptions the predominant patterns were scales with the occasional arpeggio or turnaround in it. So the most common run of 6 notes in the key of G is: ![here](/img/6-gram_patterns_with_title.png?raw=true) 
+When looking at the twenty most frequent patterns in the larger windows, reasoning that the smaller patterns wouldn't be that useful since they wouldn't be big enough to give me much information, I found that with a few exceptions the predominant patterns were scales with the occasional arpeggio or turnaround in it. So the twenty most common run of 6 notes in the key of G is: ![here](/img/6-gram_patterns_with_title.png?raw=true)
 
 
 
@@ -102,20 +102,28 @@ When looking at the twenty most frequent patterns in the larger windows, reasoni
 
 ## Conclusions
 
+It seems that a language modeling approach does give some insight into the patterns of Irish folk music.
 
+I can look at the most common patterns of notes as seen above.
 
+I generated something that sounds like music at first glance but lacks the bigger structure that would be required to make it dance music.
 
-- Data exploration and integrity: Is my data usable? What does my data look like?
-- Provide clean code along with your analysis in a separate .py file
-This will be looked at and evaluated Feature Engineering and Model Building
-- Conclusions
-- Future Work
-
-
-## Results
+My model works well enough to classify tunes in D and G with good precision and recall.
 
 
 ## Future Work
- - Key suggester
- - normalizing data and training
- - word based n-gram equivalent by using the bar as a word boundary
+
+### Key suggester
+
+I would like to write an API for thesession.org so that when people enter tunes there is a possible suggestion for the key they used.
+This would involve integrating my model with thessession.org. I would like to make sure my model can handle all the likely keys.
+
+### Normalizing data
+
+I would be interested to see if the most common patterns are different for different dances. This I think would be better done by normalizing the data such that the key becomes irrelevant and this would give me more information.
+One way to do it would be to transpose the tunes in my dataset into one key and work with that.
+
+
+### Exploring the bigger structure
+
+I would be very interested in writing the equivalent of a word based n-gram class that looks at all the information between bar lines as an n-gram. This I believe would give me a way of looking at the bigger structure of Irish music. Since most tunes have repeating patterns of 4 or 8 bars this would be pretty interesting. I think though that normalizing would be helpful in this since that would allow for more data of different types of dances.

@@ -4,7 +4,7 @@ Five years ago, when I started being interested in Irish Folk music I thought it
 When I went all bright eye to the sessions and sat not really playing my flute because I could barely make noise on it, I would hear musicians discuss how they thought that this, or that other tune (its only called a song if someone is singing, if its just instruments its called a tune) was very interesting. I would sit there and silently think to myself: "I have no idea what they were talking about!", because frankly, to me they all sounded the same.
 
 But, I was hooked to the idea of playing the flute. So I kept practicing and I kept going back to sessions. And I realized that I would walk away with three or four notes stuck in my head. They would cycle over and over just like a line of a pop-song does when I listen to the radio. In German that's called an "Ohrwurm" literally: Earworm. The earworms would get longer. I remember the day that a whole A part (most likely 8 bars of music) was stuck in my head while I was trying to sleep. It felt like a major milestone in my musical development.
-
+An example of a tune can be found [here](https://www.youtube.com/watch?v=6TSJwKAuCA8).
 
 All this is to explain the motivation for my project. I wanted to see if a Machine Learning algorithm, just like my brain, could start learning the patterns of Irish Folk Music.
 
@@ -13,7 +13,7 @@ As I am also a linguist and think about the world predominantly in terms of lang
 It turns out that n-gram models work rather well for this purpose.
 
 N-gram models essentially look at n-1 sized amount of history before a token to predict how perplexed the model is by a given token. The perplexity being the inverse of the log probability of a given token. Log probability is used avoid underflow errors.
-One of the drawbacks of n-grams is that they have a tendency for overfitting, which meants they tend to perform poorly on new data unless the test data is very similar to the training data.
+One of the drawbacks of n-grams is that they have a tendency for overfitting, which meant they tend to perform poorly on new data unless the test data is very similar to the training data.
 This I thought was an advantage in my case because part of my reason for choosing Irish Folk was its in group similarity, which is what makes it sound like diddle soup.
 
 ## The Data:
